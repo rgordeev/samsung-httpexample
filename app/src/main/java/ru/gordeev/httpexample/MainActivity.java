@@ -1,18 +1,18 @@
 package ru.gordeev.httpexample;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -38,17 +38,17 @@ public class MainActivity extends AppCompatActivity {
         thread.execute();
     }
 
-    private class HttpThread extends AsyncTask<Void, Void, JsonElement> {
+    private class HttpThread extends AsyncTask<Void, Void, Currencies> {
 
         @Override
-        protected void onPostExecute(JsonElement result) {
+        protected void onPostExecute(Currencies result) {
             String text = result == null ? "Error" : result.toString();
 
             ouput.setText(text);
         }
 
         @Override
-        protected JsonElement doInBackground(Void... voids) {
+        protected Currencies doInBackground(Void... voids) {
 
             OkHttpClient httpClient = new OkHttpClient();
             Request request = new Request.Builder()
@@ -56,12 +56,12 @@ public class MainActivity extends AppCompatActivity {
                     .get()
                     .build();
 
-            JsonElement result;
+            Currencies result;
 
             try (Response response = httpClient.newCall(request).execute()) {
 
                 GsonBuilder gsonBuilder = new GsonBuilder();
-                result = gsonBuilder.create().fromJson(response.body().string(), JsonElement.class);
+                result = gsonBuilder.create().fromJson(response.body().string(), Currencies.class);
 
             } catch (IOException e) {
                 Log.e("ERROR", "Request wasn't send", e);
@@ -69,6 +69,45 @@ public class MainActivity extends AppCompatActivity {
             }
 
             return result;
+        }
+    }
+
+    public class Currencies {
+        private String base;
+        private Date date;
+        private Map<String, Double> rates;
+
+        public String getBase() {
+            return base;
+        }
+
+        public void setBase(String base) {
+            this.base = base;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public Map<String, Double> getRates() {
+            return rates;
+        }
+
+        public void setRates(Map<String, Double> rates) {
+            this.rates = rates;
+        }
+
+        @Override
+        public String toString() {
+            return "Currencies{" +
+                    "base='" + base + '\'' +
+                    ", date=" + date +
+                    ", rates=" + rates +
+                    '}';
         }
     }
 
